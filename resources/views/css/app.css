@@ -1,0 +1,17 @@
+@font-face {
+    font-family: FuturaBQ;
+    src: url(./fonts/FuturaBQ.woff) format("woff");
+}
+
+.title {
+    font-weight: 700;
+    font-size:18px;
+    color: #212529;
+    font-family: "FuturaBQ", "Calibri" !important;
+}
+
+.content {
+    font-family: "FuturaBQ", "Calibri" !important;
+    color: #777777;
+    font-size: 12px;
+}

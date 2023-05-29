@@ -1,0 +1,1 @@
+docker exec -u root -it devcore_php_dev node watcher.js

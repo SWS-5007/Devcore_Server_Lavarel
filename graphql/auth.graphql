@@ -1,0 +1,24 @@
+input LoginCredentialsInput{
+    username:String!
+    password:String!
+    remember:Boolean
+}
+
+type Session{
+    accessToken:String @rename(attribute: "access_token")
+    tokenType:String @rename(attribute: "token_type")
+    expiresAt:DateTime @rename(attribute: "expires_at")
+    user:User @auth
+}
+
+extend type Query {
+    session: Session! @field(resolver:"App\\GraphQL\\Resolvers\\AuthResolver@session") @guard(with:"api")
+}
+
+
+extend type Mutation{
+    login(input:LoginCredentialsInput!): Session! @field(resolver:"App\\GraphQL\\Resolvers\\AuthResolver@login")
+    requestResetPassword(username:String!): Boolean @field(resolver:"App\\GraphQL\\Resolvers\\AuthResolver@requestResetPassword")
+    resetPassword(code:String!, username:String!): Session! @field(resolver:"App\\GraphQL\\Resolvers\\AuthResolver@resetPassword")
+    logout: Boolean! @field(resolver:"App\\GraphQL\\Resolvers\\AuthResolver@logout") @guard(with:"api")
+}

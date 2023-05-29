@@ -1,0 +1,14 @@
+type Resource {
+    id: ID
+    title: String
+    size: Int
+    section: String
+    properties: JSON
+    mimeType: String @rename(attribute: "mime_type")
+    displayType: String @rename(attribute: "display_type")
+    uri: String
+    url: String
+
+    _metadata: ObjectMetadata @metadata(module: "core/resource/")
+}
+

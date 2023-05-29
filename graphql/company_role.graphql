@@ -1,0 +1,59 @@
+type CompanyRole {
+    id: ID!
+    name: String
+    avatarUrl: String @rename(attribute: "avatar_url")
+    avatar: String
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+
+    #relations
+    companyId: ID! @rename(attribute: "company_id")
+    company: Company @belongsTo
+    issues: [Issue!]! @hasMany
+    users: [User!]! @hasMany
+
+    #metadata
+    _metadata: ObjectMetadata @metadata(module: "core/companyRole/")
+}
+
+input CompanyRoleCreateInput {
+    id: ID
+    name: String!
+    companyId: ID @rename(attribute: "company_id")
+    avatar: Upload
+}
+
+input CompanyRoleUpdateInput {
+    id: ID
+    name: String!
+    companyId: ID @rename(attribute: "company_id")
+    avatar: Upload
+    deleteAvatar: Boolean
+}
+
+extend type Query @guard(with: "api") {
+    companyRoleFind(filter: PaginatedFilter): [CompanyRole!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyRoleResolver@list")
+    companyRoleFindById(id: ID!): CompanyRole
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\CompanyRoleResolver@findById"
+        )
+    companyRoleFindByOne(filter: Filter): CompanyRole
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\CompanyRoleResolver@findById"
+        )
+}
+
+extend type Query{
+    companyRoleFindAll(filter: Filter): [CompanyRole!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyRoleResolver@listAll")
+}
+
+extend type Mutation @guard(with: "api") {
+    companyRoleCreate(input: CompanyRoleCreateInput!): CompanyRole
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyRoleResolver@create")
+    companyRoleUpdate(id: ID!, input: CompanyRoleUpdateInput!): CompanyRole
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyRoleResolver@update")
+    companyRoleDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyRoleResolver@delete")
+}

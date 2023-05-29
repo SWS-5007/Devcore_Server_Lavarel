@@ -1,0 +1,65 @@
+
+type Milestone {
+    id: ID
+    title: String
+    description: String
+    requiredScore: Int @rename(attribute: "required_score")
+    userCount: Int @count(relation: "users")
+    users: [MilestoneUser!]! @hasMany
+    _metadata: ObjectMetadata @metadata(module: "improve/issue/")
+}
+
+type MilestoneUser {
+    id: ID
+    milestoneId: ID! @rename(attribute: "milestone_id")
+    userId: ID! @rename(attribute: "user_id")
+    engageScore: Int @rename(attribute: "engage_score")
+    rewarded: Boolean
+    user: User @belongsTo
+    _metadata: ObjectMetadata @metadata(module: "improve/issue/")
+}
+
+
+input MilestoneRewardInput {
+    id: ID
+    rewarded: Boolean @rename(attribute: "rewarded"),
+    milestoneId: ID @rename(attribute: "milestone_id"),
+}
+
+input MilestoneCreateInput {
+    title: String
+    description: String
+    requiredScore: Int @rename(attribute: "required_score")
+}
+
+input MilestoneUpdateInput {
+    id: ID
+    title: String
+    description: String
+    requiredScore: Int @rename(attribute: "required_score")
+}
+
+extend type Query @guard(with: "api") {
+
+    milestoneFindAll(filter: Filter): [Milestone!]!
+    @field(resolver: "App\\GraphQL\\Resolvers\\MilestoneResolver@listAll")
+    milestoneFind(filter: PaginatedFilter): [Milestone!]!
+    @field(resolver: "App\\GraphQL\\Resolvers\\MilestoneResolver@list")
+    milestoneFindById(id: ID!): Milestone
+    @field(resolver: "App\\GraphQL\\Resolvers\\MilestoneResolver@findById")
+    milestoneFindByOne(filter: Filter): Milestone
+    @field(resolver: "App\\GraphQL\\Resolvers\\MilestoneResolver@findById")
+}
+
+extend type Mutation @guard(with: "api") {
+    milestoneCreate(input: MilestoneCreateInput!): Milestone
+    @field(resolver: "App\\GraphQL\\Resolvers\\MilestoneResolver@create")
+    milestoneUpdateOrDeleteMany(input: [MilestoneUpdateInput!]): [Milestone]
+    @field(resolver: "App\\GraphQL\\Resolvers\\MilestoneResolver@updateOrDeleteMany")
+    milestoneDelete(id: ID!): Boolean
+    @field(resolver: "App\\GraphQL\\Resolvers\\MilestoneResolver@delete")
+    milestoneDeleteMany(ids: [ID!]!): Boolean
+    @field(resolver: "App\\GraphQL\\Resolvers\\MilestoneResolver@deleteMany")
+    milestoneReward(input: MilestoneRewardInput!): Boolean
+    @field(resolver: "App\\GraphQL\\Resolvers\\MilestoneResolver@rewardMilestone")
+}

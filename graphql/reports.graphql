@@ -1,0 +1,101 @@
+type IdeaReport {
+    id: ID!
+    idea: Idea!
+    from: DateTime!
+    to: DateTime!
+    currency: Currency
+    interval: String!
+    data: Mixed
+}
+
+input IdeaReportInput {
+    id: ID!
+    from: DateTime
+    to: DateTime
+    interval: String
+}
+
+type UserProjectReport {
+    id: ID!
+    projectId: ID!  @rename(attribute: "project_id")
+    project: Project
+    user: User!
+    from: DateTime!
+    to: DateTime!
+    currency: Currency
+    interval: String!
+    data: Mixed
+}
+
+input UserProjectReportInput {
+    id: ID!
+    projectId: ID! @rename(attribute: "project_id")
+    from: DateTime
+    to: DateTime
+    interval: String
+}
+
+type PeopleReport {
+    from: DateTime
+    to: DateTime
+    companyRoleId: ID
+    processId: ID
+    data: [PeopleReportItem!]
+}
+
+type PeopleReportItem {
+    userId: ID!
+    user: User!
+    companyRole: CompanyRole
+    totalValue: Int
+    userValue: Int
+    userTotalEvaluations: Int
+    totalEvaluations: Int
+    userAverage:Float 
+    totalUsers: Int
+    totalAverage: Float
+    otherTotalEvaluations:Int
+    otherTotalValue:Int
+    otherAverage:Float
+    projects: [PeopleReportProject!]!
+}
+
+type PeopleReportProject {
+    projectId: ID
+    project: Project
+    stages: [PeopleReportStage!]!
+}
+
+type PeopleReportStage {
+    stageId: ID
+    stage: ProjectStage
+    totalEvaluations: Int
+    totalValue: Int
+    userValue: Int
+    userTotalEvaluations: Int
+    userAverage:Float
+    totalIdeas: Int
+    totalAverage: Float
+    totalUsers: Int
+    otherTotalEvaluations:Int
+    otherTotalValue:Int
+    otherAverage:Float
+}
+
+input PeopleReportInput {
+    from: DateTime
+    to: DateTime
+    companyRoleId: ID
+    processId: ID
+}
+
+extend type Query @guard(with: "api") @can(permissions: "core/project/manage") {
+    ideaReport(filter: IdeaReportInput!): IdeaReport!
+        @field(resolver: "App\\GraphQL\\Resolvers\\ReportResolver@ideaReport")
+    peopleReport(filter: PeopleReportInput): PeopleReport!
+        @field(resolver: "App\\GraphQL\\Resolvers\\ReportResolver@peopleReport")
+    userProjectReport(filter: UserProjectReportInput!): UserProjectReport!
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ReportResolver@userProjectReport"
+        )
+}

@@ -1,0 +1,178 @@
+union ProcessPart = Process | ProcessStage | ProcessOperation | ProcessPhase
+type IdeaStats {
+    improvements:Mixed
+    problems:Mixed
+    evaluations:Mixed
+}
+
+type Idea {
+    id: ID
+    title: String
+    description: String
+    status: String
+    version: Int
+    type: String
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "upated_at")
+    stats: IdeaStats @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@stats")
+    totalEvaluations: Int @rename(attribute:"total_evaluations")
+    evaluationSum: Int @rename(attribute:"consolidated_value")
+    replied: Boolean
+    uuid: String
+    #relations
+    processId: ID @rename(attribute: "process_id")
+    process: Process @belongsTo
+    properties: [ID]
+
+    comments: [IdeaIssueReply!]! @hasMany
+    companyRoleIds: [String] @rename(attribute: "company_role_ids")
+    #companyRoles: [CompanyRole!]! @hasMany
+    authorId: ID @rename(attribute: "author_id")
+    author: User @belongsTo
+
+    parentId: ID @rename(attribute: "parent_id")
+    parentType: String @rename(attribute: "parent_type")
+    parent: ProcessPart @belongsTo
+
+    companyToolId: ID @rename(attribute: "company_tool_id")
+    companyTool: CompanyTool @belongsTo
+
+    companyTools: [CompanyTool!]! @hasMany
+
+    companyToolIds: [ID] @rename(attribute: "company_tool_ids")
+
+    ideaContentId: ID @rename(attribute: "content_id")
+    ideaContent: [IdeaContent!]! @hasMany
+
+    projectId: ID @rename(attribute: "project_id")
+    project: Project @belongsTo
+
+    tool: Tool @belongsTo
+
+    improvements: [IdeaIssue!]! @hasMany
+    problems: [IdeaIssue!]! @hasMany
+
+    files: [Resource] @hasMany
+    operationId: ID @rename(attribute: "operation_id")
+    phaseId: ID @rename(attribute: "phase_id")
+    anonymous: Boolean @rename(attribute: "anonymous_idea")
+
+    #metadata
+    _metadata: ObjectMetadata @metadata(module: "improve/idea/")
+}
+
+input IdeaCreateInput {
+    title: String
+    description: String
+    status: String
+    type: String
+    version: Int
+    sourceId: ID @rename(attribute: "source_id")
+    sourceType: ID @rename(attribute: "source_type")
+    companyToolId: ID @rename(attribute: "company_tool_id")
+    processId: ID @rename(attribute: "process_id")
+    stageId: ID @rename(attribute: "stage_id")
+    operationId: ID @rename(attribute: "operation_id")
+    phaseId: ID @rename(attribute: "phase_id")
+
+    file: [Upload]
+
+    removeFile: Boolean @rename(attribute: "remove_file")
+    removeFileIds: [ID] @rename(attribute: "remove_file_ids")
+    anonymous: Boolean @rename(attribute: "anonymous_idea")
+    companyRoleIds: [ID] @rename(attribute: "company_role_ids")
+    companyToolIds: [ID] @rename(attribute: "company_tool_ids")
+}
+
+type IdeaResource {
+    contentId: ID @rename(attribute: "content_id")
+    id: ID
+    uuid: ID
+    files: [Resource] @hasMany
+}
+
+input ideaUploadRemoveResource {
+    removeFileIds: [ID] @rename(attribute: "remove_file_ids")
+}
+
+input IdeaUploadResource {
+    file: Upload
+    uuid: ID
+}
+
+input IdeaResourceInput {
+    contentId: ID @rename(attribute: "content_id")
+    id: ID @rename(attribute: "id")
+    removeFileIds: [ID] @rename(attribute: "remove_file_ids")
+    files: [IdeaUploadResource]
+}
+
+input IdeaUpdateInput {
+    id: ID
+    title: String
+    description: String
+    status: String
+    type: String
+    activeContentId: ID @rename(attribute: "active_content_id")
+    sourceId: ID @rename(attribute: "source_id")
+    sourceType: ID @rename(attribute: "source_type")
+    companyToolId: ID @rename(attribute: "company_tool_id")
+    processId: ID @rename(attribute: "process_id")
+    stageId: ID @rename(attribute: "stage_id")
+    operationId: ID @rename(attribute: "operation_id")
+    phaseId: ID @rename(attribute: "phase_id")
+    file: [Upload!]!
+  #  fileResource: [FileResource!]!
+    removeFile: Boolean @rename(attribute: "remove_file")
+    removeFileIds: [ID] @rename(attribute: "remove_file_ids")
+    companyRoleIds: [ID] @rename(attribute: "company_role_ids")
+    companyToolIds: [ID] @rename(attribute: "company_tool_ids")
+}
+
+input IdeaChangeStatusInput {
+    id: ID
+    status: String
+}
+
+input IdeaViewedByUser {
+    id: ID
+}
+
+input IdeaImprovementCloseInput{
+    id: ID,
+    improvementIds: [ID] @rename(attribute: "improvement_id")
+}
+
+extend type Query @guard(with: "api") {
+    ideaFindAll(filter: Filter): [Idea!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@listAll")
+    ideaFind(filter: PaginatedFilter): [Idea!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@list")
+    ideaFindById(id: ID!): Idea
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@findById")
+    ideaFindByOne(filter: Filter): Idea
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@findById")
+}
+
+extend type Mutation @guard(with: "api") {
+    ideaCreate(input: IdeaCreateInput!): Idea
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@create")
+    ideaUpdate(id: ID!, input: IdeaUpdateInput!): Idea
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@update")
+    ideaDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@delete")
+    ideaImprovementDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@ideaImprovementDelete")
+    ideaChangeStatus(input: IdeaChangeStatusInput): Idea
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@changeStatus")
+    ideaCloseFeedback(id:ID!): Idea
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@closeIdeaFeedback")
+    ideaImprovementCloseFeedback(input: IdeaImprovementCloseInput!): Idea
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@closeImprovementFeedback")
+    ideaViewed(input: IdeaViewedByUser!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@setIdeaViewed")
+    ideaUploadResources(input: IdeaResourceInput!): IdeaResource
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@setIdeaResource")
+    ideaRemoveResources(input: IdeaResourceInput!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaResolver@removeIdeaResource")
+}

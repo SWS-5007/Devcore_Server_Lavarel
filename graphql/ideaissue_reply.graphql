@@ -1,0 +1,79 @@
+
+type IdeaIssueReply {
+    id: ID,
+    value: Int,
+    status: String
+    issueId: ID @rename(attribute: "issue_id")
+    ideaId: ID @rename(attribute: "idea_id")
+    ideaIssueId: ID @rename(attribute: "idea_issue_id")
+    typeAuthorId: ID @rename(attribute: "type_author_id")
+    description: String
+    type: String
+    idea: Idea @belongsTo
+    issue: Issue @belongsTo
+    ideaIssue: IdeaIssue @rename(attribute: "idea_issue")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+    authorId: ID @rename(attribute: "author_id")
+    author: User @belongsTo
+    scoreInstance: Mixed @rename(attribute: "score_instance")
+}
+
+
+input IdeaIssueReplyCreateInput {
+    id: ID
+    authorId: ID @rename(attribute: "author_id")
+    typeAuthorId: ID @rename(attribute: "type_author_id")
+    status: String
+    description: String
+    issueId: ID @rename(attribute: "issue_id")
+    ideaId: ID @rename(attribute: "idea_id")
+    ideaIssueId: ID @rename(attribute: "idea_issue_id")
+    value: Int
+    feedback: String
+}
+
+input IdeaIssueReplyUpdateInput {
+    id: ID
+    status: String
+    description: String
+    issueId: ID @rename(attribute: "issue_id")
+    ideaId: ID @rename(attribute: "idea_id")
+    ideaIssueId: ID @rename(attribute: "idea_issue_id")
+    value: Int
+    feedback: String
+}
+
+
+
+type PaginatedResponse{
+    edges: [Edge!]!
+    pageInfo: CursorPaginatorInfo!
+    totalCount: Int!
+}
+type Edge {
+    cursor: String!
+    node: IdeaIssueReply!
+}
+
+
+extend type Query @guard(with: "api") {
+    ideaIssueReplyFindAll(filter: Filter): [IdeaIssueReply!]!
+    @field(resolver: "App\\GraphQL\\Resolvers\\IdeaIssueReplyResolver@listAll")
+    ideaIssueReplyFind(filter: PaginatedFilter!): PaginatedResponse
+    @field(resolver: "App\\GraphQL\\Resolvers\\IdeaIssueReplyResolver@listMyFeedback")
+    ideaIssueReplyReplyFindById(id: ID!): IdeaIssueReply
+    @field(resolver: "App\\GraphQL\\Resolvers\\IdeaIssueReplyResolver@findById")
+    ideaIssueReplyFindByOne(filter: Filter): IdeaIssueReply
+    @field(resolver: "App\\GraphQL\\Resolvers\\IdeaIssueReplyResolver@findById")
+}
+
+extend type Mutation @guard(with: "api") {
+    ideaIssueReplyCreate(input: IdeaIssueReplyCreateInput!): IdeaIssueReply
+    @field(resolver: "App\\GraphQL\\Resolvers\\IdeaIssueReplyResolver@create")
+    ideaIssueReplyUpdate(id: ID!, input: IdeaIssueReplyUpdateInput!): IdeaIssueReply
+    @field(resolver: "App\\GraphQL\\Resolvers\\IdeaIssueReplyResolver@update")
+    ideaIssueReplyDelete(id: ID!): Boolean
+    @field(resolver: "App\\GraphQL\\Resolvers\\IdeaIssueReplyResolver@delete")
+
+}

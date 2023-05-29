@@ -1,0 +1,130 @@
+union ProcessPart = Process | ProcessStage | ProcessOperation | ProcessPhase
+
+type IssueEffect {
+    id: ID
+    title: String,
+    status: String
+    effectTime: Int @rename(attribute: "effect_time")
+    effectValue: Int @rename(attribute: "effect_value")
+
+    effectId: Int @rename(attribute: "effect_id")
+
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+
+    templates: [IssueEffectTemplate]! @hasMany
+
+    authorId: ID @rename(attribute: "author_id")
+    author: User @belongsTo
+    companyRoleId: ID @rename(attribute: "company_role_id")
+
+    issueActiveId: ID @rename(attribute: "issue_active_id")
+
+    processId: ID @rename(attribute: "process_id")
+    process: Process @belongsTo
+
+    parentId: ID @rename(attribute: "parent_id")
+    parentType: String @rename(attribute: "parent_type")
+    parent: ProcessPart @belongsTo
+    #metadata
+    _metadata: ObjectMetadata @metadata(module: "improve/issue/")
+}
+
+type IssueEffectTemplate {
+    id: ID
+    effectId: ID @rename(attribute: "effect_id")
+    effectTime: Int @rename(attribute: "effect_time")
+    effectValue: Int @rename(attribute: "effect_value")
+
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+
+    #authorId: ID @rename(attribute: "author_id")
+    companyRoleId: ID @rename(attribute: "company_role_id")
+    processId: ID @rename(attribute: "process_id")
+    parentId: ID @rename(attribute: "parent_id")
+    parentType: String @rename(attribute: "parent_type")
+    parent: ProcessPart @belongsTo
+}
+
+input IssueEffectCreateInput {
+    title: String,
+    effectTime: String @rename(attribute: "effect_time")
+    effectValue: String @rename(attribute: "effect_value")
+    authorId: ID @rename(attribute: "author_id")
+    templates: [IssueEffectTemplateCreateInput] @hasMany
+}
+input IssueEffectUpdateInput {
+    id: ID
+    title: String,
+    effectTime: String @rename(attribute: "effect_time")
+    effectValue: String @rename(attribute: "effect_value")
+    authorId: ID @rename(attribute: "author_id")
+    templates: [IssueEffectTemplateUpdateInput] @hasMany
+}
+
+input IssueEffectTemplateCreateInput {
+    effectId: ID @rename(attribute: "effect_id")
+    effectTime: Int @rename(attribute: "effect_time")
+    effectValue: Int @rename(attribute: "effect_value")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+    companyRoleId: ID @rename(attribute: "company_role_id")
+    processId: ID @rename(attribute: "process_id")
+    stageId: ID @rename(attribute: "stage_id")
+    operationId: ID @rename(attribute: "operation_id")
+    phaseId: ID @rename(attribute: "phase_id")
+}
+
+input IssueEffectTemplateUpdateInput {
+    id: ID
+    effectId: ID @rename(attribute: "effect_id")
+    effectTime: Int @rename(attribute: "effect_time")
+    effectValue: Int @rename(attribute: "effect_value")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+    companyRoleId: ID @rename(attribute: "company_role_id")
+    processId: ID @rename(attribute: "process_id")
+    stageId: ID @rename(attribute: "stage_id")
+    operationId: ID @rename(attribute: "operation_id")
+    phaseId: ID @rename(attribute: "phase_id")
+}
+
+extend type Query @guard(with: "api") {
+    issueEffectFindAll(filter: Filter): [IssueEffect!]!
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectResolver@listAll")
+    issueEffectFind(filter: PaginatedFilter): [IssueEffect!]!
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectResolver@list")
+    issueEffectFindById(id: ID!): IssueEffect
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectResolver@findById")
+    issueEffectFindByOne(filter: Filter): IssueEffect
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectResolver@findById")
+
+    issueEffectTemplateFindAll(filter: Filter): [IssueEffectTemplate!]!
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectTemplateResolver@listAll")
+    issueEffectTemplateFind(filter: PaginatedFilter): [IssueEffectTemplate!]!
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectTemplateResolver@list")
+    issueEffectTemplateFindById(id: ID!): IssueEffectTemplate
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectTemplateResolver@findById")
+    issueEffectTemplateFindByOne(filter: Filter): IssueEffectTemplate
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectTemplateResolver@findById")
+}
+
+extend type Mutation @guard(with: "api") {
+    issueEffectCreate(input: IssueEffectCreateInput): IssueEffect
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectResolver@create")
+    issueEffectUpdate(id: ID!, input: IssueEffectUpdateInput): IssueEffect
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectResolver@update")
+    issueEffectDelete(id: ID!): IssueEffect
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectResolver@delete")
+
+    issueEffectTemplateCreate(input: IssueEffectTemplateCreateInput): IssueEffectTemplate
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectTemplateResolver@create")
+    issueEffectTemplateUpdate(id: ID!,input: IssueEffectTemplateUpdateInput): IssueEffectTemplate
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectTemplateResolver@update")
+
+    issueEffectTemplateDelete(id: ID!): Boolean
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectTemplateResolver@delete")
+    issueEffectTemplateDeleteMany(ids: [ID!]!): Boolean
+    @field(resolver: "App\\GraphQL\\Resolvers\\IssueEffectTemplateResolver@deleteMany")
+}

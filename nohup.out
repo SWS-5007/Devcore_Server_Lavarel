@@ -1,0 +1,36 @@
+PHP Fatal error:  Declaration of App\WebSockets\WebSocketHandler::onOpen(Ratchet\ConnectionInterface $connection) must be compatible with SwooleTW\Http\Websocket\HandlerContract::onOpen($fd, Illuminate\Http\Request $request) in /home/devcore/app/server/app/WebSockets/WebSocketHandler.php on line 12
+
+   Symfony\Component\Debug\Exception\FatalErrorException  : Declaration of App\WebSockets\WebSocketHandler::onOpen(Ratchet\ConnectionInterface $connection) must be compatible with SwooleTW\Http\Websocket\HandlerContract::onOpen($fd, Illuminate\Http\Request $request)
+
+  at /home/devcore/app/server/app/WebSockets/WebSocketHandler.php:12
+     8| use Ratchet\ConnectionInterface;
+     9| use Ratchet\RFC6455\Messaging\MessageInterface;
+    10| use SwooleTW\Http\Websocket\HandlerContract;
+    11| 
+  > 12| class WebSocketHandler extends \BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler implements HandlerContract
+    13| {
+    14| 
+    15|     public function onOpen(ConnectionInterface $connection)
+    16|     {
+
+
+   Whoops\Exception\ErrorException  : Declaration of App\WebSockets\WebSocketHandler::onOpen(Ratchet\ConnectionInterface $connection) must be compatible with SwooleTW\Http\Websocket\HandlerContract::onOpen($fd, Illuminate\Http\Request $request)
+
+  at /home/devcore/app/server/app/WebSockets/WebSocketHandler.php:12
+     8| use Ratchet\ConnectionInterface;
+     9| use Ratchet\RFC6455\Messaging\MessageInterface;
+    10| use SwooleTW\Http\Websocket\HandlerContract;
+    11| 
+  > 12| class WebSocketHandler extends \BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler implements HandlerContract
+    13| {
+    14| 
+    15|     public function onOpen(ConnectionInterface $connection)
+    16|     {
+
+  Exception trace:
+
+  1   Whoops\Run::handleError("Declaration of App\WebSockets\WebSocketHandler::onOpen(Ratchet\ConnectionInterface $connection) must be compatible with SwooleTW\Http\Websocket\HandlerContract::onOpen($fd, Illuminate\Http\Request $request)", "/home/devcore/app/server/app/WebSockets/WebSocketHandler.php")
+      /home/devcore/app/server/vendor/filp/whoops/src/Whoops/Run.php:408
+
+  2   Whoops\Run::handleShutdown()
+      [internal]:0

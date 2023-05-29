@@ -1,0 +1,60 @@
+type CompanyToolPrice {
+    id: ID
+    name: String
+    priceModel: String @rename(attribute: "price_model")
+    yearlyCosts: Int @rename(attribute: "yearly_costs")
+    priceInterval: String @rename(attribute: "price_interval")
+    price: Int @rename(attribute: "price")
+    parentType: String @rename(attribute: "parent_type")
+    parentId: ID @rename(attribute: "parent_id")
+    expiration: DateTime @rename(attribute: "expiration")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "upated_at")
+    parent: Project @belongsTo
+}
+
+input CompanyToolPriceCreateInput {
+    companyToolId: ID @rename(attribute: "company_tool_id")
+    name: String
+    priceModel: String @rename(attribute: "price_model")
+    yearlyCosts: Int @rename(attribute: "yearly_costs")
+    priceInterval: String @rename(attribute: "price_interval")
+    price: Int @rename(attribute: "price")
+    parentType: String @rename(attribute: "parent_type")
+    parentId: ID @rename(attribute: "parent_id")
+    expiration: Date @rename(attribute: "expiration")
+}
+
+input CompanyToolPriceUpdateInput {
+    id: ID
+    companyToolId: ID @rename(attribute: "company_tool_id")
+    name: String
+    priceModel: String @rename(attribute: "price_model")
+    yearlyCosts: Int @rename(attribute: "yearly_costs")
+    priceInterval: String @rename(attribute: "price_interval")
+    price: Int @rename(attribute: "price")
+    parentType: String @rename(attribute: "parent_type")
+    parentId: ID @rename(attribute: "parent_id")
+    expiration: Date @rename(attribute: "expiration")
+}
+
+
+extend type Mutation @guard(with: "api") {
+    companyToolPriceCreate(
+        input: CompanyToolPriceCreateInput!
+    ): CompanyToolPrice
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\CompanyToolPriceResolver@create"
+        )
+    companyToolPriceUpdate(
+        id: ID!
+        input: CompanyToolPriceUpdateInput!
+    ): CompanyToolPrice
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\CompanyToolPriceResolver@update"
+        )
+    companyToolPriceDelete(id: ID!): Boolean
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\CompanyToolPriceResolver@delete"
+        )
+}

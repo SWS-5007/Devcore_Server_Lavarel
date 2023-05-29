@@ -1,0 +1,176 @@
+"Can be used as an argument to upload files using https://github.com/jaydenseric/graphql-multipart-request-spec"
+scalar Upload
+    @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Upload")
+
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-01-01 13:00:00`."
+scalar DateTime
+    @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+"A date string with format `Y-m-d`, e.g. `2011-05-23`."
+scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
+
+scalar JSON @scalar(class: "MLL\\GraphQLScalars\\JSON")
+
+scalar Mixed @scalar(class: "MLL\\GraphQLScalars\\Mixed")
+
+enum Operator {
+    eq @enum(value: "eq")
+    lt @enum(value: "lt")
+    lte @enum(value: "lte")
+    gt @enum(value: "gt")
+    gte @enum(value: "gte")
+    like @enum(value: "like")
+    cn @enum(value: "cn")
+    ncn @enum(value: "ncn")
+    sw @enum(value: "sw")
+    nsw @enum(value: "nsw")
+    new @enum(value: "new")
+    bw @enum(value: "bw")
+    nbw @enum(value: "nbw")
+    in @enum(value: "in")
+    nin @enum(value: "nin")
+    notnull @enum(value: "notnull")
+    isnull @enum(value: "isnull")
+}
+
+
+
+
+type PageInfo {
+    endCursor: String
+    hasNextPage: Boolean!
+    total: Int
+}
+
+input Filter {
+    where: FilterCondition
+    orderBy: [String]
+    with: [IncludeFilter]
+}
+
+input CursorFilter {
+    after: String
+    first: Int,
+    where: FilterCondition
+    orderBy: [String]
+    with: [IncludeFilter]
+}
+
+input PaginatedFilter {
+    perPage: Int = 50
+    page: Int = 1
+    orderBy: [String]
+    where: FilterCondition
+    with: [IncludeFilter]
+}
+input OrderByClause{
+    field: String!
+    order: SortOrder!
+}
+
+enum SortOrder {
+    ASC
+    DESC
+}
+
+input FilterCondition {
+    field: String
+    op: Operator
+    value: Mixed
+    and: [FilterCondition]
+    or: [FilterCondition]
+    not: [FilterCondition]
+}
+input IncludeFilter {
+    where: FilterCondition
+    field: String
+    as: String
+    with: [IncludeFilter]
+}
+
+type CursorPaginatorInfo {
+    first: Int!
+    last: Int!
+    totalCount: Int!
+    startCursor: String
+    endCursor: String
+    currentCount: Int!
+    hasNextPage: Boolean!
+    hasPrevPage: Boolean!
+}
+
+type ObjectMetadata {
+    permissions: [String]
+}
+
+type Notification {
+    type: String!
+    payload: Mixed
+}
+
+type Post {
+    name: String!
+}
+
+type UpdatePostInput {
+    name: String!
+}
+
+
+#base query
+type Query {
+    serverTime: String
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ServerTimeResolver@serverTime"
+        )
+    appConfig: Mixed
+        @field(resolver: "App\\GraphQL\\Resolvers\\AppConfigResolver@getConfig")
+}
+
+#base mutation
+type Mutation {
+    serverTime: String
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ServerTimeResolver@serverTime"
+        )
+    triggerTestSubscription: Boolean @field(resolver: "App\\GraphQL\\Mutations\\TriggerTestSubscriptionMutation@resolve")
+
+
+}
+
+#base subscription
+type Subscription {
+    newNotification: Notification @subscription(class: "App\\GraphQL\\Subscriptions\\NewNotification")
+    projectUpdated: Project @subscription(class: "App\\GraphQL\\Subscriptions\\ProjectUpdated")
+    userUpdated: User @subscription(class: "App\\GraphQL\\Subscriptions\\UserUpdated")
+    userReplied: IdeaIssueReply @subscription(class: "App\\GraphQL\\Subscriptions\\UserReplied")
+}
+
+
+#import resource.graphql
+#import auth.graphql
+#import account.graphql
+#import user.graphql
+#import company.graphql
+#import industry.graphql
+#import currency.graphql
+#import tool.graphql
+#import company_tool.graphql
+#import company_tool_price.graphql
+#import company_role.graphql
+#import role.graphql
+#import permission.graphql
+#import process.graphql
+#import process_stage.graphql
+#import process_operation.graphql
+#import process_phase.graphql
+#import idea.graphql
+#import ideaissue.graphql
+#import project.graphql
+#import issue.graphql
+#import reports.graphql
+#import milestones.graphql
+#import issue_effect.graphql
+#import ideaissue_reply.graphql
+#import experience.graphql
+#import idea_content.graphql

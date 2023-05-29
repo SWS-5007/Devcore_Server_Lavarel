@@ -1,0 +1,63 @@
+type IdeaIssue {
+    id: ID
+    title: String
+    description: String
+    status: String
+    type: String
+    uuid: String
+    ideaContentId: ID @rename(attribute: "idea_content_id")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+
+    #relations
+    processId: ID @rename(attribute: "process_id")
+    process: Process @belongsTo
+    replied: Boolean
+    authorId: ID @rename(attribute: "author_id")
+    author: User @belongsTo
+
+    comments: [IdeaIssueReply!]! @hasMany
+
+    parentId: ID @rename(attribute: "parent_id")
+    parentType: String @rename(attribute: "parent_type")
+    parent: Idea @belongsTo
+    anonymous: Boolean @rename(attribute: "anonymous_idea")
+    files: [Resource] @hasMany
+
+    projectId: ID @rename(attribute: "project_id")
+    project: Project @belongsTo
+
+    #metadata
+    _metadata: ObjectMetadata @metadata(module: "improve/idea/")
+}
+
+input IdeaIssueCreateInput {
+    title: String
+    description: String
+    status: String
+    type: String
+    ideaContentId: ID @rename(attribute: "idea_content_id")
+    parentId: ID @rename(attribute: "parent_id")
+    parentType: String @rename(attribute: "parent_type")
+    processId: ID @rename(attribute: "process_id")
+    projectId: ID @rename(attribute: "project_id")
+    stageId: ID @rename(attribute: "project_stage_id")
+    unit: String
+    dimension: String
+    estimatedSavings: Int @rename(attribute: "estimated_savings")
+    estimatedCosts: Int @rename(attribute: "estimated_costs")
+    file: Upload
+    anonymous: Boolean @rename(attribute: "anonymous_idea")
+    removeFile: Boolean @rename(attribute: "remove_file")
+}
+
+extend type Query @guard(with: "api") {
+    ideaIssueFindAll(filter: Filter): [IdeaIssue!]!
+    @field(resolver: "App\\GraphQL\\Resolvers\\IdeaIssueResolver@listAll")
+}
+
+
+extend type Mutation @guard(with: "api") {
+    ideaIssueCreate(input: IdeaIssueCreateInput!): IdeaIssue
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaIssueResolver@create")
+}

@@ -1,0 +1,120 @@
+version: "3"
+services:
+  #PHP Service
+  devcore_php_dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: digitalocean.com/php
+    container_name: devcore_php_dev
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+      PHP_IDE_CONFIG: "serverName=docker-server"
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./.docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./.docker/php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      #- ./.docker/php/log:/var/log
+    networks:
+      - app-network
+    ports:
+      - "6001:6001"
+      - "1215:1215"
+      - "9090:9090"
+    links:
+      - devcore_mysql_dev
+
+  #Nginx Service
+  devcore_nginx_dev:
+    image: nginx:alpine
+    container_name: devcore_nginx_dev
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www
+      - ./.docker/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./.docker/nginx/ssl/devcore.test.crt:/etc/ssl/certs/devcore.test.crt
+      - ./.docker/nginx/ssl/devcore.test.key:/etc/ssl/private/devcore.test.key
+    networks:
+      - app-network
+  #
+  #  #Worker
+  #  worker:
+  #    build:
+  #      context: .
+  #      dockerfile: ./.docker/supervisor/worker.dockerfile
+  #    volumes:
+  #      - .:/var/www
+  #    ports:
+  #      - 6001:6001
+
+  #MySQL Service
+  devcore_mysql_dev:
+    image: mysql:8
+    container_name: devcore_mysql_dev
+    restart: unless-stopped
+    # PDO Doesn't support MySQL 8 caching_sha2_password Authentication
+    # @see https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
+    command: --default-authentication-plugin=mysql_native_password --secure-file-priv=NULL
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: devcore_dev_db
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+      MYSQL_ROOT_HOST: "%"
+    volumes:
+      - ./.docker/mysql/data:/var/lib/mysql/
+      - ./.docker/mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - app-network
+
+  #SUPERVISOR service
+  #  devcore_supervisor_dev:
+  #
+  #      build:
+  #        context: .
+  #        dockerfile: ./.docker/supervisor/supervisor.dockerfile
+  #      volumes:
+  #        - .:/var/www:delegated
+  #      networks:
+  #        - app-network
+  #      command:
+  #        - /bin/sh
+  #        - -c
+  #        - supervisord -c ./.docker/supervisor/supervisord.conf
+  #        - supervisorctl  start all
+
+  #REDIS service
+  devcore_redis_dev:
+    image: redis
+    container_name: devcore_redis_dev
+    ports:
+      - 6379:6379
+    networks:
+      - app-network
+  #beanstalkd driver
+  devcore_beanstalkd_dev:
+    image: schickling/beanstalkd
+    container_name: devcore_beanstalkd_dev
+    ports:
+      - 11300:11300
+    networks:
+      - app-network
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
+#Volumes
+volumes:
+  dbdata:
+    driver: local

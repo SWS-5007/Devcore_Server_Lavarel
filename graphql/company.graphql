@@ -1,0 +1,63 @@
+type Company {
+    id: ID!
+    name: String
+    logo: String
+    logoUrl: String @rename(attribute: "logo_url")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "upated_at")
+
+    #relations
+    currencyCode: ID! @rename(attribute: "currency_code")
+    currency: Currency @hasOne
+
+    industryId: ID! @rename(attribute: "industry_id")
+    industry: Industry @belongsTo
+
+    companyRoles: [CompanyRole]! @hasMany(rename: "company_roles")
+    experienceQuests: [ExperienceQuest]! @hasMany(rename: "company_quests")
+     #metadata
+    _metadata: ObjectMetadata @metadata(module: "core/company/")
+}
+
+input CompanyUpdateInput {
+    id: ID!
+    name: String!
+    logo: Upload
+    deleteLogo: Boolean
+    currencyCode: ID! @rename(attribute: "currency_code")
+}
+
+input CompanyCreateInput {
+    id: ID
+    file: Upload
+    currencyCode: ID! @rename(attribute: "currency_code")
+    name: String!
+    lang: String!
+    adminEmail: String!
+    deleteLogo: Boolean @rename(attribute: "delete_logo")
+}
+
+
+extend type Query @guard(with: "api") @can(permissions: "core/company/manage"){
+    companyFindAll(filter: Filter): [Company!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyResolver@listAll")
+    companyFind(filter: PaginatedFilter): [Company!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyResolver@list")
+    companyFindById(id: ID!): Company
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyResolver@findById")
+    companyFindByOne(filter: Filter): Company
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyResolver@findById")
+}
+
+
+extend type Mutation @can(permissions: "core/company/manage") {
+    companyCreate(input: CompanyCreateInput!): Company!
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\CompanyResolver@createCompany"
+        )
+    companyUpdate(id: ID!, input: CompanyUpdateInput!): Company
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyResolver@updateCompany")
+
+    companyDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyResolver@deleteCompany")
+}
