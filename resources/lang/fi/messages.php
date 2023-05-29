@@ -1,0 +1,37 @@
+<?php
+
+return [
+    'welcome' => 'Tervetuloa :appNameen !',
+    'hello' => 'Terve ',
+    'HelloName' => 'Hello :name',
+    'hasInvited' => ':name on kutsunut sinua liittymään organisaatioon :companyName :appNamessa',
+    'hasInvitedToNew' => ':name on kutsunut sinut mukaan käyttämään :appNamea.',
+    'useCredentials' => 'Käytäthän seuraavia tunnuksia sisäänkirjautuessa',
+    'changePassword' => 'Sinun täytyy vaihtaa salasana kirjautumisen jälkeen',
+    'email' => 'Käyttäjätunnus',
+    'password' => 'Salasana',
+    'goToApp' => 'Mene Devcoreen',
+    'linkTrouble' => "Jos uudelleenohjauks painikkeessa \":actionText\" on ongelmia \n. Kopioi ja liitä osoite selaimeesi (:actionURL).:",
+    'regards' => 'Terveisin',
+    'weeklyDigest' => 'yhteenveto',
+    'summaryFromLastWeek' =>  'viime viikolta',
+    'lastWeekTimeFrame' =>  '(:fromTime - :toTime)',
+    'ideaCount' => 'Tiiminne saavutti :ideaCount uutta ideaa!',
+    'thanks' => 'Kiitos!',
+    'anonymous' => 'Nimetön',
+    'digestTitle' => 'Devcore yhteenveto',
+    'emptyIdeaDesc' => 'Ei kuvausta',
+    'unsubscribeText' => 'Et halua saada viikkoyhteenvetoa ?',
+    'unsubscribe' => 'Hallinnoi ilmoituksia',
+    'newIdeas' => 'Uudet ideat',
+    'newIssues' => 'Uudet ongelmat',
+    'newImprovementsAndProblems' => 'Kommentit aikaisempiin ideoihin',
+    'newIdeaIssues' => 'Uudet idea parannukset ja ongelmat',
+    'companyStats' => 'Yrityksenne saavutti:',
+    'weeklyDigestTitle' => 'Yhteenveto edelliseltä viikolta :ideasCount 💡 :issuesCount 🔴 :ideaIssuesCount 💬 ',
+    'removed' => 'poistettu',
+    'noEffect' => '(ei vaikutusta valittuna)',
+    'viewInDesktop' => 'Avaa',
+    'ideaContentSanitizeFail' => 'Idean sisällön tarkastaminen epäonnistui.'
+];
+

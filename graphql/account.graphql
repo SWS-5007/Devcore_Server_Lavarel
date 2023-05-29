@@ -1,0 +1,51 @@
+input ProfileUpdateInput {
+    firstName: String @rename(attribute: "first_name")
+    lastName: String @rename(attribute: "last_name")
+    email: String
+    phone: String
+    lang: String
+    file: Upload
+    deleteAvatar: Boolean @rename(attribute: "delete_avatar")
+    changePassword: Boolean @rename(attribute: "change_password")
+    password: String
+    passwordConfirmation: String @rename(attribute: "password_confirmation")
+    notifications: Boolean @rename(attribute: "user_notifications")
+}
+
+input MyCompanyUpdateInput {
+    file: Upload
+    currencyCode: ID! @rename(attribute: "currency_code")
+    name: String!
+    deleteLogo: Boolean @rename(attribute: "delete_logo")
+    notifications: Boolean @rename(attribute: "user_notifications")
+}
+input UserLanguageInput {
+    lang: String
+}
+
+input UserProfileScoreDisplay {
+    profileScoreDisplay: Int @rename(attribute: "profile_score_display")
+}
+
+input UserProfileIdeaIntro {
+    profileIdeaIntro: Boolean @rename(attribute: "profile_idea_intro")
+}
+
+input UserProfileRewardActive {
+    profileRewardActive: Int @rename(attribute: "profile_reward_active")
+}
+
+extend type Mutation @guard(with: "api") {
+    updateProfile(input: ProfileUpdateInput!): User!
+        @field(resolver: "App\\GraphQL\\Resolvers\\AccountResolver@updateProfile")
+    userLanguageUpdate(input: UserLanguageInput!): User!
+        @field(resolver: "App\\GraphQL\\Resolvers\\AccountResolver@updateUserLanguage")
+    userDisplayScoreUpdate(input: UserProfileScoreDisplay!): User!
+        @field(resolver: "App\\GraphQL\\Resolvers\\AccountResolver@updateUserDisplayScore")
+    userIdeaIntroUpdate(input: UserProfileIdeaIntro!): User!
+        @field(resolver: "App\\GraphQL\\Resolvers\\AccountResolver@updateUserIdeaIntro")
+    userProfileRewardUpdate(input: UserProfileRewardActive!): User!
+        @field(resolver: "App\\GraphQL\\Resolvers\\AccountResolver@updateUserProfileRewardActive")
+    upateMyCompany(input: MyCompanyUpdateInput!): Company!
+        @field(resolver: "App\\GraphQL\\Resolvers\\AccountResolver@upateMyCompany")
+}

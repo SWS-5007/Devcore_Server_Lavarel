@@ -1,0 +1,153 @@
+type User {
+    id: ID!
+    firstName: String @rename(attribute: "first_name")
+    lastName: String @rename(attribute: "last_name")
+    fullName: String @rename(attribute: "full_name")
+    email: String @fieldAccess(permissions: "auth/user/privateData")
+    phone: String @fieldAccess(permissions: "auth/user/privateData")
+    profileScoreDisplay: Int @rename(attribute: "profile_score_display")
+    avatar: String
+    lang: String
+    ideas: [Idea!]!
+    issues: [Issue!]!
+    problems: [IdeaIssue!]!
+    improvements: [IdeaIssue!]!
+    avatarUrl: String @rename(attribute: "avatar_url")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+    status: String
+    mustChangePassword: Boolean @rename(attribute: "must_change_password")
+    yearlyCosts: Int @rename(attribute: "yearly_costs")
+    engageScore: Int @rename(attribute: "user_engage_score")
+    activeMilestone: Milestone @field(
+        resolver: "App\\GraphQL\\Resolvers\\UserResolver@getActiveMilestone"
+    )
+    userScoreRank: Int @field(
+        resolver: "App\\GraphQL\\Resolvers\\UserResolver@getUserRank"
+    )
+    userSharedValue: Int @field(
+        resolver: "App\\GraphQL\\Resolvers\\UserResolver@getUserSharedValue"
+    )
+    userProjectIdeaUsage: Int @field(
+        resolver: "App\\GraphQL\\Resolvers\\UserResolver@getUsersProjectIdeaUsage"
+    )
+    userRoleScores: [RoleVersusNext!]! @field(
+        resolver: "App\\GraphQL\\Resolvers\\UserResolver@getRoleScores"
+    )
+
+    experienceUsers: [ExperienceUser] @hasMany
+    profileRewardActive: Int @rename(attribute: "profile_reward_active")
+    profileIdeaIntro: Boolean @rename(attribute: "profile_idea_intro")
+    ideas: [Idea!]!
+    issues: [Issue!]!
+    problems: [IdeaIssue!]!
+    improvements: [IdeaIssue!]!
+    #relations
+    companyId: ID @rename(attribute: "company_id")
+    company: Company @belongsTo
+    companyRoleId: ID @rename(attribute: "company_role_id")
+    companyRole: CompanyRole @belongsTo
+
+    permissions: [Permission]
+        @fieldAccess(permissions: "auth/user/privateData")
+        @rename(attribute: "all_permissions")
+    roles: [Role]
+        @fieldAccess(permissions: "auth/user/privateData")
+        @hasMany(rename: "roles")
+    notifications: Boolean @rename(attribute: "user_notifications")
+
+    #metadata
+    _metadata: ObjectMetadata @metadata(module: "auth/user/")
+}
+
+input UserCreateInput {
+    id: ID
+    firstName: String @rename(attribute: "first_name")
+    lastName: String @rename(attribute: "last_name")
+    email: String @fieldAccess(permissions: "auth/user/privateData")
+    phone: String @fieldAccess(permissions: "auth/user/privateData")
+    companyRoleId: ID @rename(attribute: "company_role_id")
+    lang: String
+    roleId: ID @rename(attribute: "role_id")
+    yearlyCosts: Int @rename(attribute: "yearly_costs")
+    avatar: Upload,
+
+}
+
+input UserUpdateInput {
+    id: ID!
+    firstName: String @rename(attribute: "first_name")
+    lastName: String @rename(attribute: "last_name")
+    email: String @fieldAccess(permissions: "auth/user/privateData")
+    phone: String @fieldAccess(permissions: "auth/user/privateData")
+    companyRoleId: ID @rename(attribute: "company_role_id")
+    lang: String
+    roleId: ID @rename(attribute: "role_id")
+    yearlyCosts: Int @rename(attribute: "yearly_costs")
+    avatar: Upload
+}
+
+input UserInviteInput {
+    firstName: String @rename(attribute: "first_name")
+    lastName: String @rename(attribute: "last_name")
+    email: String @fieldAccess(permissions: "auth/user/privateData")
+    phone: String @fieldAccess(permissions: "auth/user/privateData")
+    companyRoleId: ID @rename(attribute: "company_role_id")
+    projectId: ID @rename(attribute: "project_id")
+}
+
+input UserRegisterInput {
+    firstName: String @rename(attribute: "first_name")
+    lastName: String @rename(attribute: "last_name")
+    email: String @fieldAccess(permissions: "auth/user/privateData")
+    phone: String @fieldAccess(permissions: "auth/user/privateData")
+    password: String @fieldAccess(permissions: "auth/user/privateData")
+    companyId: ID @rename(attribute: "company_id")
+    companyRoleId: ID @rename(attribute: "company_role_id")
+    projectId: ID @rename(attribute: "project_id")
+}
+
+input UserDeviceTokenInput {
+    id: ID!
+    type: String @rename(attribute: "type")
+    deviceToken: String @rename(attribute: "token")
+}
+
+type RoleVersusNext {
+    isAgainst: Boolean,
+    roleId: ID,
+    role: String,
+    roleValue: Int,
+    userCount: Int
+}
+
+extend type Query @guard(with: "api") {
+    userFindAll(filter: Filter): [User!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\UserResolver@listAll")
+    userFind(filter: PaginatedFilter): [User!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\UserResolver@list")
+    userFindById(id: ID!): User
+        @field(resolver: "App\\GraphQL\\Resolvers\\UserResolver@findById")
+    userFindByOne(filter: Filter): User
+        @field(resolver: "App\\GraphQL\\Resolvers\\UserResolver@findById")
+}
+
+extend type Mutation @guard(with: "api") {
+    userCreate(input: UserCreateInput!): User
+        @field(resolver: "App\\GraphQL\\Resolvers\\UserResolver@create")
+    userUpdate(id: ID!, input: UserUpdateInput!): User
+        @field(resolver: "App\\GraphQL\\Resolvers\\UserResolver@update")
+    userDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\UserResolver@delete")
+    userSetDeviceToken(input: UserDeviceTokenInput!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\UserResolver@setDeviceToken")
+    userResetPassword(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\UserResolver@resetPassword")    
+    userInvite(input: UserInviteInput!): User
+        @field(resolver: "App\\GraphQL\\Resolvers\\UserResolver@userInvite")
+}
+
+extend type Mutation {
+    userRegister(input: UserRegisterInput!): User
+        @field(resolver: "App\\GraphQL\\Resolvers\\AuthResolver@userRegister")
+}

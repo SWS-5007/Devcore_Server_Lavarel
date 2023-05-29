@@ -1,0 +1,61 @@
+
+type IdeaContent {
+    id: ID
+    markup: JSON!
+    ideaId: ID @rename(attribute: "idea_id")
+    version: Int
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+    contentType: String @rename(attribute: "content_type")
+   # files: [Resource] @hasMany
+    companyRoles: [CompanyRole!]! @hasMany
+}
+#type PermissionedIdeaContent {
+#    PermissionedIdeaContents: [IdeaContent!]! @field(
+#        resolver: "App\\GraphQL\\Resolvers\\IdeaContentResolver@getPermissioned"
+#    )
+#}
+
+input IdeaContentCreateInput {
+    markup: JSON
+    ideaId: ID @rename(attribute: "idea_id")
+    version: Int
+   # file: [Upload]
+    isPrimary: Boolean @rename(attribute: "is_primary")
+    companyRoles: [ID] @rename(attribute: "company_roles")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+    contentType: String @rename(attribute: "content_type")
+}
+
+input IdeaContentUpdateInput {
+    id: ID
+    markup: JSON
+   # file: [Upload!]!
+    ideaId: ID @rename(attribute: "idea_id")
+    isPrimary: Boolean @rename(attribute: "is_primary")
+    companyRoles: [ID] @rename(attribute: "company_roles")
+    contentType: String @rename(attribute: "content_type")
+    version: Int
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+}
+
+extend type Query @guard(with: "api") {
+    ideaContentFindAll(filter: Filter): [IdeaContent!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaContentResolver@listAll")
+    ideaContentPermissionedFindAll(filter: Filter): [IdeaContent!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaContentResolver@getPermissionedContents")
+    ideaContentFindById(id: ID!): IdeaContent
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaContentResolver@findById")
+}
+
+
+extend type Mutation @guard(with: "api") {
+    ideaContentCreate(input: IdeaContentCreateInput!): IdeaContent
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaContentResolver@create")
+    ideaContentUpdate(id: ID!, input: IdeaContentUpdateInput!): IdeaContent
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaContentResolver@update")
+    ideaContentDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\IdeaContentResolver@delete")
+}

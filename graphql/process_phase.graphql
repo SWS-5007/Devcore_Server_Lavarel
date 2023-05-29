@@ -1,0 +1,89 @@
+type ProcessPhaseStats {
+    ideas: Mixed
+    toolIdeas: Mixed @rename(attribute:"tool_ideas")
+    projects: Mixed
+    issues: Mixed
+}
+type ProcessPhase {
+    id: ID!
+    title: String
+    description: String
+    dOrder: Int @rename(attribute: "d_order")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "upated_at")
+    stats: ProcessPhaseStats @field(resolver: "App\\GraphQL\\Resolvers\\ProcessPhaseResolver@stats")
+
+    #relations
+    companyId: ID @rename(attribute: "company_id")
+    company: Company @belongsTo
+
+    authorId: ID! @rename(attribute: "author_id")
+    author: User @belongsTo
+
+    processId: ID! @rename(attribute: "process_id")
+    process: Process @belongsTo
+
+    issues: [Issue!]! @hasMany
+
+    operationId: ID! @rename(attribute: "operation_id")
+    operation: ProcessOperation @belongsTo
+
+    companyRoles: [CompanyRole!]! @hasMany
+
+    #metadata
+    _metadata: ObjectMetadata @metadata(module: "process/process/")
+}
+
+input ProcessPhaseUpdateOrderInput {
+    id: ID!
+    operationId: ID! @rename(attribute: "operation_id")
+    dOrder: Int @rename(attribute: "d_order")
+}
+
+input ProcessPhaseCreateInput {
+    title: String!
+    operationId: ID! @rename(attribute: "operation_id")
+    companyRoles: [ID] @rename(attribute: "company_roles")
+    description: String
+    authorId: ID
+}
+
+input ProcessPhaseUpdateInput {
+    id: ID!
+    title: String!
+    operationId: ID! @rename(attribute: "operation_id")
+    companyRoles: [ID] @rename(attribute: "company_roles")
+    description: String
+    dOrder: Int @rename(attribute: "d_order")
+    authorId: ID
+}
+
+extend type Query @guard(with: "api") {
+    processPhaseFindAll(filter: Filter): [ProcessPhase!]!
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ProcessPhaseResolver@listAll"
+        )
+    processPhaseFind(filter: PaginatedFilter): [ProcessPhase!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProcessPhaseResolver@list")
+    processPhaseFindById(id: ID!): ProcessPhase
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ProcessPhaseResolver@findById"
+        )
+    processPhaseFindByOne(filter: Filter): ProcessPhase
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ProcessPhaseResolver@findById"
+        )
+}
+
+extend type Mutation @guard(with: "api") {
+    processPhaseCreate(input: ProcessPhaseCreateInput!): ProcessPhase
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProcessPhaseResolver@create")
+    processPhaseUpdate(id: ID!, input: ProcessPhaseUpdateInput!): ProcessPhase
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProcessPhaseResolver@update")
+    processPhaseDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProcessPhaseResolver@delete")
+    processPhaseUpdateOrder(input: ProcessPhaseUpdateOrderInput): ProcessPhase
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ProcessPhaseResolver@updateDisplayOrder"
+        )
+}

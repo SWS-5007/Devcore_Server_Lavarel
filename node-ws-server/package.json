@@ -1,0 +1,18 @@
+{
+  "name": "wsserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hocuspocus/extension-rocksdb": "^1.0.0-alpha.92",
+    "@hocuspocus/server": "^1.0.0-alpha.78",
+    "express": "^4.17.1",
+    "express-ws": "^5.0.2"
+  }
+}

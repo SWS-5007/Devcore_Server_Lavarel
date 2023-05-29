@@ -1,0 +1,45 @@
+type Currency {
+    code: ID!
+    name: String
+    symbol: String
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+     #metadata
+    _metadata: ObjectMetadata @metadata(module: "core/currency/")
+}
+
+input CurrencyCreateInput {
+    code: ID!
+    name: String!
+    symbol: String!
+}
+
+input CurrencyUpdateInput {
+    code: ID
+    name: String
+    symbol: String
+}
+
+extend type Query @guard(with: "api") {
+    currencyFindAll(filter: Filter): [Currency!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\CurrencyResolver@listAll")
+    currencyFind(filter: PaginatedFilter): [Currency!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\CurrencyResolver@list")
+    currencyFindById(id: ID!): Currency
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\CurrencyResolver@findById"
+        )
+    currencyFindByOne(filter: Filter): Currency
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\CurrencyResolver@findById"
+        )
+}
+
+extend type Mutation @guard(with: "api") {
+    currencyCreate(input: CurrencyCreateInput!): Currency
+        @field(resolver: "App\\GraphQL\\Resolvers\\CurrencyResolver@create")
+    currencyUpdate(code: ID!, input: CurrencyUpdateInput!): Currency
+        @field(resolver: "App\\GraphQL\\Resolvers\\CurrencyResolver@update")
+    currencyDelete(code: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\CurrencyResolver@delete")
+}

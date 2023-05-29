@@ -1,0 +1,51 @@
+type Industry {
+    id: ID!
+    name: String
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "upated_at")
+    #metadata
+    _metadata: ObjectMetadata @metadata(module: "core/industry/")
+}
+
+input IndustryCreateInput {
+    name: String!
+}
+
+input IndustryUpdateInput {
+    id: ID!
+    name: String
+}
+
+type IndustryCursorEdge {
+    cursor: String!
+    node: Industry
+}
+
+type IndustryCursorPaginatedResponse {
+    pageInfo: CursorPaginatorInfo
+    edges: [IndustryCursorEdge!]!
+}
+
+extend type Query @guard(with: "api") {
+    industryFindAll(filter: Filter): [Role!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\IndustryResolver@listAll")
+    industryFind(filter: PaginatedFilter): [Role!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\IndustryResolver@list")
+    industryFindById(id: ID!): Role
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\IndustryResolver@findById"
+        )
+    industryFindByOne(filter: Filter): Role
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\IndustryResolver@findById"
+        )
+}
+
+extend type Mutation @guard(with: "api") {
+    industryCreate(input: IndustryCreateInput!): Industry
+        @field(resolver: "App\\GraphQL\\Resolvers\\IndustryResolver@create")
+    industryUpdate(id: ID!, input: IndustryUpdateInput!): Industry
+        @field(resolver: "App\\GraphQL\\Resolvers\\IndustryResolver@update")
+    industryDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\IndustryResolver@delete")
+}

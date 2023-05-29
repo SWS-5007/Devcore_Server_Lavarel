@@ -1,0 +1,65 @@
+type ProcessStats {
+    stages: Mixed
+    operations: Mixed
+    phases: Mixed
+    ideas: Mixed
+    toolIdeas: Mixed @rename(attribute:"tool_ideas")
+    projects: Mixed
+    issues: Mixed
+}
+
+type Process {
+    id: ID!
+    title: String
+    description: String
+    dOrder: Int @rename(attribute: "d_order")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "upated_at")
+    stats: ProcessStats
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProcessResolver@stats")
+
+    #relations
+    companyId: ID @rename(attribute: "company_id")
+    company: Company @belongsTo
+
+    authorId: ID! @rename(attribute: "author_id")
+    author: User @belongsTo
+
+    stages: [ProcessStage!]! @hasMany
+    companyRoles: [CompanyRole!]! @hasMany
+
+    users: [User!]! @hasMany
+
+    #metadata
+    _metadata: ObjectMetadata @metadata(module: "core/process/")
+}
+
+input ProcessCreateInput {
+    title: String
+    authorId: ID
+}
+
+input ProcessUpdateInput {
+    id: ID!
+    title: String
+}
+
+extend type Query @guard(with: "api") {
+    processFindAll(filter: Filter): [Process!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProcessResolver@listAll")
+    processFind(filter: PaginatedFilter): [Process!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProcessResolver@list")
+    processFindById(id: ID!): Process
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProcessResolver@findById")
+    processFindByOne(filter: Filter): Process
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProcessResolver@findById")
+}
+
+extend type Mutation @guard(with: "api") {
+    processCreate(input: ProcessCreateInput!): Process
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProcessResolver@create")
+    processUpdate(id: ID!, input: ProcessUpdateInput!): Process
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProcessResolver@update")
+    processDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProcessResolver@delete")
+}

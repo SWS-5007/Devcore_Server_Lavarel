@@ -1,0 +1,29 @@
+
+type ExperienceQuest {
+    id: ID
+    user_type: String
+    title: String
+    requiredPoints: Int @rename(attribute: "required_points")
+}
+
+type ExperienceUser {
+    id: ID
+    companyId: ID! @rename(attribute: "company_id")
+    experiencePoints: Int @rename(attribute: "experience_points")
+    questId: ID! @rename(attribute: "quest_id")
+    userId: ID! @rename(attribute: "user_id")
+    level: Int!
+    user: User @belongsTo
+    _metadata: ObjectMetadata @metadata(module: "core/experience/")
+}
+
+input ExperienceUpdateInput {
+    userId: ID! @rename(attribute: "user_id")
+    questId: ID! @rename(attribute: "quest_id")
+    experiencePoints: Int @rename(attribute: "experience_points")
+}
+
+extend type Mutation @guard(with: "api") {
+    increaseUserExperience(input: ExperienceUpdateInput!): ExperienceUser
+    @field(resolver: "App\\GraphQL\\Resolvers\\ExperienceResolver@increaseExperience")
+}

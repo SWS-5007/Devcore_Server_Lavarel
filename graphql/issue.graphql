@@ -1,0 +1,149 @@
+union ProcessPart = Process | ProcessStage | ProcessOperation | ProcessPhase
+
+type Issue {
+    id: ID
+    title: String
+    description: String
+    status: String
+    type: String
+    moneyUnit: String @rename(attribute: "money_unit")
+    moneyValue: Int @rename(attribute: "money_value")
+    timeUnit: String @rename(attribute: "time_unit")
+    timeValue: Int @rename(attribute: "time_value")
+    totalValue: Int @rename(attribute: "total_value")
+    value: Int @rename(attribute: "value")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+
+    #relations
+    processId: ID @rename(attribute: "process_id")
+    process: Process @belongsTo
+
+    comments: [IdeaIssueReply!]! @hasMany
+
+    authorId: ID @rename(attribute: "author_id")
+    author: User @belongsTo
+    replied: Boolean
+    parentId: ID @rename(attribute: "parent_id")
+    parentType: String @rename(attribute: "parent_type")
+    parent: ProcessPart @belongsTo
+
+    projectId: ID @rename(attribute: "project_id")
+    project: Project @belongsTo
+
+    projectStageId: ID @rename(attribute: "project_stage_id")
+    projectStage: ProjectStage @belongsTo
+
+    anonymous: Boolean @rename(attribute: "anonymous_idea")
+    checked: Boolean @rename(attribute: "checked_issue")
+
+    companyRole: CompanyRole @belongsTo
+    files: [Resource] @hasMany
+    effectTemplateId: ID @rename(attribute: "effect_template_id")
+    effect: IssueEffect @hasOne
+    #metadata
+    _metadata: ObjectMetadata @metadata(module: "improve/issue/")
+}
+
+input IssueCreateInput {
+    title: String
+    description: String
+    status: String
+    type: String
+
+    processId: ID @rename(attribute: "process_id")
+    projectId: ID @rename(attribute: "project_id")
+    projectStageId: ID @rename(attribute: "project_stage_id")
+    anonymous: Boolean @rename(attribute: "anonymous_idea")
+    checked: Boolean @rename(attribute: "checked_issue")
+
+    effectTemplateId: ID @rename(attribute: "effect_template_id")
+
+    # unit: String
+    # dimension: String
+    # value: Int @rename(attribute: "value")
+    moneyUnit: String @rename(attribute: "money_unit")
+    moneyValue: Int @rename(attribute: "money_value")
+    timeUnit: String @rename(attribute: "time_unit")
+    timeValue: Int @rename(attribute: "time_value")
+    totalValue: Int @rename(attribute: "total_value")
+    stageId: ID @rename(attribute: "stage_id")
+    operationId: ID @rename(attribute: "operation_id")
+    phaseId: ID @rename(attribute: "phase_id")
+    file: Upload
+    removeFile: Boolean @rename(attribute: "remove_file")
+}
+
+input IssueUpdateInput {
+    id: ID
+    title: String
+    description: String
+    status: String
+    type: String
+
+    sourceId: ID @rename(attribute: "source_id")
+    companyToolId: ID @rename(attribute: "company_tool_id")
+    processId: ID @rename(attribute: "process_id")
+    projectId: ID @rename(attribute: "project_id")
+    projectStageId: ID @rename(attribute: "project_stage_id")
+    stageId: ID @rename(attribute: "stage_id")
+    operationId: ID @rename(attribute: "operation_id")
+    phaseId: ID @rename(attribute: "phase_id")
+
+    checked: Boolean @rename(attribute: "checked_issue")
+
+    moneyUnit: String @rename(attribute: "money_unit")
+    moneyValue: Int @rename(attribute: "money_value")
+    timeUnit: String @rename(attribute: "time_unit")
+    timeValue: Int @rename(attribute: "time_value")
+    totalValue: Int @rename(attribute: "total_value")
+    file: Upload
+    removeFile: Boolean @rename(attribute: "remove_file")
+}
+
+input IssueChangeStatusInput {
+    id: ID
+    status: String
+}
+
+input IssueCheckInput {
+    id: ID
+    checked: Boolean @rename(attribute: "checked_issue")
+}
+
+input IssueTemplateInput {
+    id: ID
+    templateId: ID @rename(attribute: "effect_template_id")
+}
+
+extend type Query @guard(with: "api") {
+    issueFindAll(filter: Filter): [Issue!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\IssueResolver@listAll")
+    issueFind(filter: PaginatedFilter): [Issue!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\IssueResolver@list")
+    issueFindById(id: ID!): Issue
+        @field(resolver: "App\\GraphQL\\Resolvers\\IssueResolver@findById")
+    issueFindByOne(filter: Filter): Issue
+        @field(resolver: "App\\GraphQL\\Resolvers\\IssueResolver@findById")
+}
+
+extend type Mutation @guard(with: "api") {
+    issueCreate(input: IssueCreateInput!): Issue
+        @field(resolver: "App\\GraphQL\\Resolvers\\IssueResolver@create")
+    issueUpdate(id: ID!, input: IssueUpdateInput!): Issue
+        @field(resolver: "App\\GraphQL\\Resolvers\\IssueResolver@update")
+    issueDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\IssueResolver@delete")
+    issueDeleteMany(ids: [ID!]!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\IssueResolver@deleteMany")
+    issueChangeStatus(input: IssueChangeStatusInput): Issue
+        @field(resolver: "App\\GraphQL\\Resolvers\\IssueResolver@changeStatus")
+    issueCheck(input: IssueCheckInput!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\IssueResolver@checkIssue")
+    setEffectTemplate(input: IssueTemplateInput): Issue
+        @field(resolver: "App\\GraphQL\\Resolvers\\IssueResolver@setTemplate")
+    unsetEffectTemplate(input: IssueTemplateInput): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\IssueResolver@unsetTemplate")
+    issueCloseFeedback(id:ID!): Issue
+        @field(resolver: "App\\GraphQL\\Resolvers\\IssueResolver@closeIssueFeedback")
+}

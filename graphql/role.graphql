@@ -1,0 +1,37 @@
+type Role {
+    id: ID!
+    name: String!
+    guard: String @rename(attribute: "guard_name")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+
+    #relations
+    permissions: [Permission] @hasMany(rename: "permissions")
+    
+     #metadata
+    _metadata: ObjectMetadata @metadata(module: "auth/role/")
+}
+
+extend type Query @guard(with: "api") {
+    roleFindAll(filter: Filter): [Role!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\RoleResolver@listAllRoles")
+    roleFind(filter: PaginatedFilter): [Role!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\RoleResolver@list")
+    roleFindById(id: ID!): Role
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\RoleResolver@findById"
+        )
+    roleFindByOne(filter: Filter): Role
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\RoleResolver@findById"
+        )
+}
+
+# extend type Mutation @guard(with: "api") {
+#     roleCreate(input: RoleCreateInput!): Role
+#         @field(resolver: "App\\GraphQL\\Resolvers\\RoleResolver@create")
+#     roleUpdate(id: ID!, input: RoleUpdateInput!): Role
+#         @field(resolver: "App\\GraphQL\\Resolvers\\RoleResolver@update")
+#     roleDelete(id: ID!): Boolean
+#         @field(resolver: "App\\GraphQL\\Resolvers\\RoleResolver@delete")
+# }

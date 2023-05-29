@@ -1,0 +1,109 @@
+type CompanyTool {
+    id: ID
+    name: String
+    type: String
+    status: String
+
+    avatarUrl: String @rename(attribute: "avatar_url")
+    avatar: String
+
+    yearlyCosts: Int @rename(attribute: "yearly_costs")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "upated_at")
+
+    #relations
+    companyId: ID @rename(attribute: "company_id")
+    company: Company @belongsTo
+
+    prices: [CompanyToolPrice]! @hasMany
+
+    toolId: ID @rename(attribute: "tool_id")
+    tool: Tool @belongsTo
+
+    modules: [CompanyToolModule!]! @hasMany
+    modulesCount: Int @count(relation: "modules")
+
+    #metadata
+    _metadata: ObjectMetadata @metadata(module: "core/companyTool/")
+}
+
+
+input CompanyToolCreateInput {
+    id: ID
+    toolId: ID @rename(attribute: "tool_id")
+    name: String
+    status: String
+    companyToolId: ID @rename(attribute: "company_tool_id")
+    priceModel: String @rename(attribute: "price_model")
+    yearlyCosts: Int @rename(attribute: "yearly_costs")
+    avatar: Upload
+}
+
+input CompanyToolUpdateInput {
+    id: ID
+    toolId: ID @rename(attribute: "tool_id")
+    name: String
+    status: String
+    companyToolId: ID @rename(attribute: "company_tool_id")
+    priceModel: String @rename(attribute: "price_model")
+    yearlyCosts: Int @rename(attribute: "yearly_costs")
+    avatar: Upload
+    deleteAvatar: Boolean
+}
+
+type CompanyToolModule {
+    id: ID
+    name: String
+    priceModel: String @rename(attribute: "price_model")
+    status: String
+    yearlyCosts: Int @rename(attribute: "yearly_costs")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "upated_at")
+
+    #relations
+    companyToolId: ID @rename(attribute: "company_tool_id")
+    companyId: ID @rename(attribute: "company_id")
+
+    projectId: ID @rename(attribute: "project_id")
+
+    prices: [CompanyToolPrice]! @hasMany
+
+    #metadata
+    _metadata: ObjectMetadata @metadata(module: "core/companyTool/")
+}
+
+
+
+input CompanyToolChangeStatusInput {
+    id: ID
+    status: String
+}
+
+extend type Query @guard(with: "api") {
+    companyToolFindAll(filter: Filter): [CompanyTool!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyToolResolver@listAll")
+    companyToolFind(filter: PaginatedFilter): [CompanyTool!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyToolResolver@list")
+
+    companyToolFindById(id: ID!): CompanyTool
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\CompanyToolResolver@findById"
+        )
+    companyToolFindByOne(filter: Filter): CompanyTool
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\CompanyToolResolver@findById"
+        )
+}
+
+extend type Mutation @guard(with: "api") {
+    companyToolCreate(input: CompanyToolCreateInput!): CompanyTool
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyToolResolver@create")
+    companyToolUpdate(id: ID!, input: CompanyToolUpdateInput!): CompanyTool
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyToolResolver@updateTool")
+    companyToolDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\CompanyToolResolver@delete")
+    companyToolChangeStatus(input: CompanyToolChangeStatusInput!): CompanyTool
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\CompanyToolResolver@changeStatus"
+        )
+}

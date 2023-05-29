@@ -1,0 +1,41 @@
+type Tool {
+    id: ID!
+    name: String
+    toolId: ID @rename(attribute:"tool_id")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+
+    parent: Tool @belongsTo
+
+    #metadata
+    _metadata: ObjectMetadata @metadata(module: "core/tool/")
+}
+
+input ToolCreateInput {
+    name: String!
+}
+
+input ToolUpdateInput {
+    id: ID!
+    name: String
+}
+
+extend type Query @guard(with: "api") {
+    toolFindAll(filter: Filter): [Tool!]!
+    @field(resolver: "App\\GraphQL\\Resolvers\\ToolResolver@listAll")
+    toolFind(filter: PaginatedFilter): [Tool!]!
+    @field(resolver: "App\\GraphQL\\Resolvers\\ToolResolver@list")
+    toolFindById(id: ID!): Tool
+    @field(resolver: "App\\GraphQL\\Resolvers\\ToolResolver@findById")
+    toolFindByOne(filter: Filter): Tool
+    @field(resolver: "App\\GraphQL\\Resolvers\\ToolResolver@findById")
+}
+
+extend type Mutation @guard(with: "api") {
+    toolCreate(input: ToolCreateInput!): Tool
+        @field(resolver: "App\\GraphQL\\Resolvers\\ToolResolver@create")
+    toolUpdate(id: ID!, input: ToolUpdateInput!): Tool
+        @field(resolver: "App\\GraphQL\\Resolvers\\ToolResolver@update")
+    toolDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\ToolResolver@delete")
+}

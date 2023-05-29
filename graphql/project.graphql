@@ -1,0 +1,273 @@
+type ProjectStats {
+    totalGains: Int
+    totalLosses: Int
+    consolidatedValue: Int
+    totalEvaluations: Int
+    stages: [ProjectStageStats]
+}
+
+type ProjectStageStats {
+    id: ID!
+    totalGains: Int
+    totalLosses: Int
+    totalEvaluations: Int
+    consolidatedValue: Int
+}
+
+type Project {
+    id: ID
+    name: String
+    description: String
+    budget: String
+    status: String
+    type: String
+    evaluationType: String @rename(attribute: "evaluation_type")
+    evaluationIntervalUnit: String
+        @rename(attribute: "evaluation_interval_unit")
+    evaluationIntervalAmount: String
+        @rename(attribute: "evaluation_interval_amount")
+    hasReviews: Boolean @rename(attribute: "has_reviews")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "upated_at")
+    totalGains: Int @rename(attribute: "total_gains")
+    totalLosses: Int @rename(attribute: "total_losses")
+    consolidatedValue: Int @rename(attribute: "consolidated_value")
+    totalEvaluations: Int @rename(attribute: "total_evaluations")
+    stageStatus: String
+    stats: ProjectStats
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@stats")
+
+    #relations
+    processId: ID @rename(attribute: "process_id")
+    process: Process @belongsTo
+    stages: [ProjectStage!]! @hasMany
+    companyTools: [CompanyTool!]! @hasMany
+    users: [User!]! @hasMany
+    ideas: [ProjectIdea!]! @hasMany @can(permissions: "core/project/manage")
+    issues: [Issue!]! @hasMany @can(permissions: "core/project/manage")
+    useAdvanced: Boolean @rename(attribute: "use_advanced")
+    issueEvaluationRoles: [ID] @rename(attribute: "issue_evaluation_roles")
+    issueTemplateRoles: [ID] @rename(attribute: "issue_template_roles")
+    shareAccessRoles: [ID] @rename(attribute: "share_access_roles")
+    pendingEvaluations: [ProjectEvaluationInstance!]!
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@getPendingEvaluations"
+        )
+        @can(permissions: "core/project/manage")
+
+    userIdeas: [ProjectIdea!]!
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@getUserIdeas"
+        )
+    userPendingEvaluations: [ProjectEvaluationInstance!]!
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@getUserPendingEvaluations"
+        )
+
+
+    #metadata
+    _metadata: ObjectMetadata @metadata(module: "core/project/")
+}
+
+type ProjectEvaluationInstance {
+    id: ID
+    status: String
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "upated_at")
+    #relations
+    records: [ProjectEvaluationRecord!]!
+        @hasMany
+        @can(permissions: "core/project/manage")
+    userRecords: [ProjectEvaluationRecord!]! @hasMany
+    projectId: ID @rename(attribute: "project_id")
+}
+
+type ProjectEvaluationRecord {
+    id: ID
+    status: String
+    moneyUnit: String @rename(attribute: "money_unit")
+    moneyValue: Int @rename(attribute: "money_value")
+    timeUnit: String @rename(attribute: "time_unit")
+    timeValue: Int @rename(attribute: "time_value")
+    totalValue: Int @rename(attribute: "total_value")
+    #relations
+    ideaId: ID @rename(attribute: "idea_id")
+    idea: Idea @belongsTo
+
+    authorId: ID @rename(attribute: "author_id")
+    author: User @belongsTo
+
+    projectId: ID @rename(attribute: "project_id")
+    evaluationInstanceId: ID @rename(attribute: "evaluation_instance_id")
+}
+
+type ProjectTool {
+    id: ID
+    toolId: ID @rename(attribute: "tool_id")
+    projectId: ID @rename(attribute: "project_id")
+    stageId: ID @rename(attribute: "project_stage_id")
+}
+
+type ProjectIdea {
+    id: ID
+    ideaId: ID @rename(attribute: "idea_id")
+    title: String
+    projectId: ID @rename(attribute: "project_id")
+    processStageId: ID @rename(attribute: "process_stage_id")
+    stageId: ID @rename(attribute: "project_stage_id")
+    totalGains: Int! @rename(attribute: "total_gains")
+    totalLosses: Int! @rename(attribute: "total_losses")
+    consolidatedValue: Int! @rename(attribute: "consolidated_value")
+    totalEvaluations: Int! @rename(attribute: "total_evaluations")
+    idea: Idea @belongsTo
+}
+
+type ProjectStage {
+    id: ID
+    title: String
+    status: String
+    processStageId: ID @rename(attribute: "stage_id")
+    processStage: ProcessStage @belongsTo
+    totalGains: Int! @rename(attribute: "total_gains")
+    totalLosses: Int! @rename(attribute: "total_losses")
+    consolidatedValue: Int! @rename(attribute: "consolidated_value")
+    totalEvaluations: Int! @rename(attribute: "total_evaluations")
+    ideas: [ProjectIdea!]! @hasMany
+    tools: [ProjectTool!]! @hasMany
+}
+
+type ShareLink {
+    id: ID
+    projectId: Int @rename(attribute: "project_id")
+    companyId: Int @rename(attribute: "company_id")
+    companyRoleIds: [ID] @rename(attribute: "company_role_ids")
+    urlName: String @rename(attribute: "url_name")
+    urlHash: String @rename(attribute: "url_hash")
+    createdAt: DateTime @rename(attribute: "created_at")
+    updatedAt: DateTime @rename(attribute: "updated_at")
+    deletedAt: DateTime @rename(attribute: "deleted_at")
+}
+
+input ShareLinkCreateInput {
+    id: ID
+    projectId: Int @rename(attribute: "project_id")
+    companyId: Int @rename(attribute: "company_id")
+    companyRoleIds: [ID] @rename(attribute: "company_role_ids")
+    roleId: Int @rename(attribute: "role_id")
+    urlName: String @rename(attribute: "url_name"),
+}
+
+input ShareLinkUpdateInput {
+    id: ID
+    urlName: String @rename(attribute: "url_name")
+}
+
+input ProjectCreateInput {
+    id: ID
+    name: String
+    description: String
+    budget: String
+    type: String
+    evaluationType: String @rename(attribute: "evaluation_type")
+    evaluationIntervalUnit: String
+        @rename(attribute: "evaluation_interval_unit")
+    evaluationIntervalAmount: String
+        @rename(attribute: "evaluation_interval_amount")
+    userIds: [ID] @rename(attribute: "user_ids")
+    issueEvaluationRoles: [ID] @rename(attribute: "issue_evaluation_roles")
+    issueTemplateRoles: [ID] @rename(attribute: "issue_template_roles")
+    shareAccessRoles: [ID] @rename(attribute: "share_access_roles")
+    useAdvanced: Boolean @rename(attribute: "use_advanced")
+    processId: ID @rename(attribute: "process_id")
+    companyToolIds: [ID] @rename(attribute: "company_tool_ids")
+    ideaIds: [ID] @rename(attribute: "idea_ids")
+    processStageId: [ID] @rename(attribute: "stage_id")
+}
+
+input ProjectUpdateInput {
+    id: ID
+    name: String
+    description: String
+    budget: String
+    type: String
+    evaluationType: String @rename(attribute: "evaluation_type")
+    evaluationIntervalUnit: String
+        @rename(attribute: "evaluation_interval_unit")
+    evaluationIntervalAmount: String
+        @rename(attribute: "evaluation_interval_amount")
+    userIds: [ID] @rename(attribute: "user_ids")
+    issueEvaluationRoles: [ID] @rename(attribute: "issue_evaluation_roles")
+    issueTemplateRoles: [ID] @rename(attribute: "issue_template_roles")
+    shareAccessRoles: [ID] @rename(attribute: "share_access_roles")
+    useAdvanced: Boolean @rename(attribute: "use_advanced")
+    processId: ID @rename(attribute: "process_id")
+    companyToolIds: [ID] @rename(attribute: "company_tool_ids")
+    ideaIds: [ID] @rename(attribute: "idea_ids")
+    processStageId: [ID] @rename(attribute: "stage_id")
+}
+
+input ProjectEvaluationRecordInput {
+    id: ID
+    skipped: Boolean
+    moneyUnit: String @rename(attribute: "money_unit")
+    moneyValue: Int @rename(attribute: "money_value")
+    timeUnit: String @rename(attribute: "time_unit")
+    timeValue: Int @rename(attribute: "time_value")
+    totalValue: Int @rename(attribute: "total_value")
+}
+
+extend type Query @guard(with: "api") {
+    projectFindAll(filter: Filter): [Project!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@listAll")
+    projectFind(filter: PaginatedFilter): [Project!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@list")
+    projectFindById(id: ID!): Project
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@findById")
+    projectFindByOne(filter: Filter): Project
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@findById")
+    projectFindMyAll(filter: Filter): [Project!]!
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@listMyProjectsAll"
+        )
+    projectFindMy(filter: PaginatedFilter): [Project!]!
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@listMyProjects"
+        )
+    linkFindAll(filter: Filter): [ShareLink!]!
+        @field(resolver: "App\\GraphQL\\Resolvers\\ShareLinkResolver@listAll")
+
+}
+
+extend type Mutation @guard(with: "api") {
+    projectCreate(input: ProjectCreateInput!): Project
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@create")
+    projectUpdate(id: ID!, input: ProjectUpdateInput!): Project
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@update")
+    projectDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@delete")
+    projectNextStage(id: ID!): Project
+        @field(resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@nextStage")
+    projectCompleteStage(id: ID!, stageId: [ID!]): Project
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@completeStage"
+        )
+    projectEvaluateIdea(
+        input: ProjectEvaluationRecordInput
+    ): ProjectEvaluationRecord
+        @field(
+            resolver: "App\\GraphQL\\Resolvers\\ProjectResolver@evaluateIdea"
+        )
+    linkCreate(input: ShareLinkCreateInput!): ShareLink
+        @field(resolver: "App\\GraphQL\\Resolvers\\ShareLinkResolver@create")
+    linkUpdate(id: ID!, input: ShareLinkUpdateInput!): ShareLink
+        @field(resolver: "App\\GraphQL\\Resolvers\\ShareLinkResolver@update")
+    linkDelete(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\ShareLinkResolver@delete")
+    shareProjectByLinkId(id: ID!): Boolean
+        @field(resolver: "App\\GraphQL\\Resolvers\\ShareLinkResolver@shareProjectByLinkId")
+}
+
+extend type Mutation {
+    getShareLinkByHash(urlHash: String!): ShareLink
+        @field(resolver: "App\\GraphQL\\Resolvers\\ShareLinkResolver@getShareLinkByHash")
+}
